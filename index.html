@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Classificados Poéticos - Air Poem</title>
+  
+  <!-- Tipografia Editorial & Artesanal -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ceu: #93d0d4;
+      --campo: #7cbf6b;
+      --papel: #fbf9f1;
+      --papel-borda: #e3dec9;
+      --tinta-texto: #1e2528;
+      --amarelo-sol: #f5ce28;
+      --laranja-quente: #e65c23;
+      --coral-destaque: #a8383b;
+      --azul-suave: #6ea8d9;
+    }
+
+    body {
+      background-color: var(--ceu);
+      color: var(--tinta-texto);
+      font-family: 'Lora', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Textura de papel e hachura pontilhada sobreposta */
+    .texture-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 10;
+      opacity: 0.18;
+      background-image: radial-gradient(var(--tinta-texto) 1px, transparent 1px);
+      background-size: 18px 18px;
+    }
+
+    /* Declive do Campo Verde (Colina de Livro Ilustrado) */
+    .hill-background {
+      position: absolute;
+      bottom: 0;
+      left: -5%;
+      width: 110%;
+      height: 48%;
+      background: var(--campo);
+      border-radius: 50% 50% 0 0 / 18% 22% 0 0;
+      box-shadow: inset 0 20px 40px rgba(0,0,0,0.06);
+      z-index: 1;
+    }
+
+    /* Elementos Flutuantes Lúdicos (Sol e Folha) */
+    .floating-sun {
+      position: absolute;
+      top: 25px;
+      right: 9%;
+      width: 78px;
+      height: 78px;
+      background: var(--amarelo-sol);
+      border-radius: 50%;
+      box-shadow: 0 0 0 10px rgba(245, 206, 40, 0.22);
+      animation: floatSun 6s ease-in-out infinite alternate;
+      z-index: 2;
+    }
+
+    @keyframes floatSun {
+      from { transform: translateY(0px) rotate(0deg); }
+      to { transform: translateY(-12px) rotate(8deg); }
+    }
+
+    /* Conteúdo Principal */
+    .app-container {
+      position: relative;
+      z-index: 3;
+      width: 1080px;
+      max-width: 95vw;
+      padding: 30px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.3rem;
+      letter-spacing: 2px;
+      color: var(--tinta-texto);
+      text-shadow: 1px 1px 0px rgba(255,255,255,0.7);
+    }
+
+    .subtitle {
+      font-family: 'Caveat', cursive;
+      font-size: 1.55rem;
+      color: var(--laranja-quente);
+      transform: rotate(-2deg);
+      display: inline-block;
+      margin-top: 4px;
+    }
+
+    /* Layout Lado a Lado */
+    .main-workspace {
+      display: flex;
+      gap: 28px;
+      width: 100%;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    /* Moldura Artesanal da Câmera (Estilo Gravura/Colagem) */
+    .camera-card {
+      background: var(--papel);
+      padding: 14px;
+      /* Borda orgânica assimétrica simulando corte à mão */
+      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+      box-shadow: 0 15px 35px rgba(24, 38, 30, 0.16);
+      border: 3px dashed var(--papel-borda);
+      position: relative;
+      transform: rotate(-0.7deg);
+    }
+
+    .canvas-viewport {
+      position: relative;
+      width: 580px;
+      height: 435px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #111;
+    }
+
+    video, canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 580px;
+      height: 435px;
+      transform: scaleX(-1);
+    }
+    #paintCanvas { z-index: 2; }
+    #cursorCanvas { z-index: 3; }
+
+    .tag-modo {
+      margin-top: 10px;
+      font-family: 'Caveat', cursive;
+      font-size: 1.25rem;
+      text-align: center;
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: #eef3eb;
+      color: var(--tinta-texto);
+      border: 1px solid #d4dec9;
+    }
+
+    /* Painel Lateral de Poemas e Ações */
+    .side-card-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-height: 480px;
+    }
+
+    /* Papel Envelhecido / Pergaminho de Anúncios */
+    .paper-sheet {
+      background: var(--papel);
+      padding: 22px 24px;
+      border-radius: 18px 240px 20px 245px/245px 20px 240px 18px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+      border: 2px solid var(--papel-borda);
+      transform: rotate(0.8deg);
+      position: relative;
+    }
+
+    .paper-sheet h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      color: var(--coral-destaque);
+      border-bottom: 2px dashed var(--papel-borda);
+      padding-bottom: 8px;
+      margin-bottom: 14px;
+    }
+
+    /* Botões Artesanais */
+    .controls-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    button, select {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 10px 16px;
+      border-radius: 255px 25px 225px 25px/25px 225px 25px 255px;
+      border: 2px solid var(--tinta-texto);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .btn-poem { background: var(--amarelo-sol); color: var(--tinta-texto); }
+    .btn-clean { background: #fff; color: var(--tinta-texto); }
+    .btn-save { background: var(--azul-suave); color: #fff; border-color: #4b80b0; }
+
+    select {
+      background: #fff;
+      flex: 1;
+    }
+
+    .status-stamp {
+      margin-top: 10px;
+      font-family: 'Caveat', cursive;
+      font-size: 1.25rem;
+      color: var(--laranja-quente);
+      min-height: 32px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Card do Poema (Estilo Classificado Ilustrado) */
+    .poem-output-card {
+      flex: 1;
+      background: #fffef9;
+      padding: 22px;
+      border-radius: 20px 15px 25px 15px;
+      border-left: 6px solid var(--laranja-quente);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .word-badge {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--laranja-quente);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .author-signature {
+      font-family: 'Caveat', cursive;
+      font-size: 1.4rem;
+      color: var(--coral-destaque);
+      margin-bottom: 12px;
+    }
+
+    .poem-body {
+      font-family: 'Lora', serif;
+      font-size: 1.12rem;
+      line-height: 1.6;
+      font-style: italic;
+      color: var(--tinta-texto);
+    }
+
+    .empty-state {
+      font-family: 'Caveat', cursive;
+      font-size: 1.35rem;
+      color: #9c998c;
+      text-align: center;
+    }
+  </style>
+
+  <!-- MediaPipe Hands & Camera -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <!-- Textura Pontilhada/Hachura -->
+  <div class="texture-overlay"></div>
+
+  <!-- Colina Ilustrada -->
+  <div class="hill-background"></div>
+
+  <!-- Sol Lúdico -->
+  <div class="floating-sun"></div>
+
+  <div class="app-container">
+    <header>
+      <h1>Classificados Poéticos</h1>
+      <span class="subtitle">Escreva com as mãos no ar e revele os versos</span>
+    </header>
+
+    <div class="main-workspace">
+      <!-- Câmera com moldura artesanal -->
+      <div class="camera-card">
+        <div class="canvas-viewport">
+          <video id="webcam" playsinline></video>
+          <canvas id="paintCanvas" width="580" height="435"></canvas>
+          <canvas id="cursorCanvas" width="580" height="435"></canvas>
+        </div>
+        <div id="modeTag" class="tag-modo">Abrindo livro de imagens...</div>
+      </div>
+
+      <!-- Painel de Ações e Poema -->
+      <div class="side-card-panel">
+        <div class="paper-sheet">
+          <h3>Caderno de Anotações</h3>
+          
+          <div class="controls-grid">
+            <div class="btn-row">
+              <button class="btn-poem" id="btnPredict">Consultar Poema [S]</button>
+              <button class="btn-clean" id="btnClear">Apagar Giz [C]</button>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 6px;">
+              <select id="labelSelect">
+                <option value="tempo">Palavra: TEMPO</option>
+                <option value="amor">Palavra: AMOR</option>
+                <option value="mar">Palavra: MAR</option>
+                <option value="vida">Palavra: VIDA</option>
+              </select>
+              <button class="btn-save" id="btnSalvarNaPasta">Guardar Amostra</button>
+            </div>
+          </div>
+
+          <div class="status-stamp" id="statusMsg">Pronto para desenhar suas palavras.</div>
+        </div>
+
+        <!-- Saída do Poema estilo Livro -->
+        <div class="poem-output-card" id="poemaBox">
+          <div id="poemaConteudo" style="display: none;">
+            <div class="word-badge" id="pPalavra"></div>
+            <div class="author-signature" id="pAutor"></div>
+            <div class="poem-body" id="pVerso"></div>
+          </div>
+          <div class="empty-state" id="poemaPlaceholder">
+            "Procura-se uma palavra desenhada no ar para acender este poema..."
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const POEMAS = {
+      "tempo": {
+        autor: "Mário Quintana",
+        verso: "O tempo não para! Só a saudade é que faz as coisas pararem no tempo."
+      },
+      "amor": {
+        autor: "Luís de Camões",
+        verso: "Amor é fogo que arde sem se ver, é ferida que dói e não se sente."
+      },
+      "mar": {
+        autor: "Fernando Pessoa",
+        verso: "Ó mar salgado, quanto do teu sal são lágrimas de Portugal!"
+      },
+      "vida": {
+        autor: "Carlos Drummond de Andrade",
+        verso: "E agora, José? A festa acabou, a luz apagou, o povo sumiu..."
+      }
+    };
+
+    let dataset = [];
+
+    // Amostras sintéticas prévias
+    function gerarAmostrasIniciais() {
+      const palavras = ["tempo", "amor", "mar", "vida"];
+      const fontes = ["sans-serif", "Arial", "Verdana", "Impact"];
+      const offsets = [-2, 0, 2];
+
+      palavras.forEach(palavra => {
+        fontes.forEach(fonte => {
+          offsets.forEach(offX => {
+            offsets.forEach(offY => {
+              const c = document.createElement('canvas');
+              c.width = 28;
+              c.height = 28;
+              const ctx = c.getContext('2d');
+
+              ctx.fillStyle = '#000000';
+              ctx.fillRect(0, 0, 28, 28);
+
+              ctx.fillStyle = '#FFFFFF';
+              const fontSize = palavra.length > 4 ? 7 : 9;
+              ctx.font = `bold ${fontSize}px ${fonte}`;
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(palavra.toUpperCase(), 14 + offX, 14 + offY);
+
+              const imgData = ctx.getImageData(0, 0, 28, 28).data;
+              const features = [];
+              for (let i = 0; i < imgData.length; i += 4) {
+                features.push(imgData[i] / 255.0);
+              }
+              dataset.push({ label: palavra, features: features });
+            });
+          });
+        });
+      });
+    }
+
+    gerarAmostrasIniciais();
+
+    const video = document.getElementById('webcam');
+    const paintCanvas = document.getElementById('paintCanvas');
+    const paintCtx = paintCanvas.getContext('2d');
+    const cursorCanvas = document.getElementById('cursorCanvas');
+    const cursorCtx = cursorCanvas.getContext('2d');
+    const statusMsg = document.getElementById('statusMsg');
+    const modeTag = document.getElementById('modeTag');
+    const poemaConteudo = document.getElementById('poemaConteudo');
+    const poemaPlaceholder = document.getElementById('poemaPlaceholder');
+
+    // Traçado estilo giz de cera (laranja quente vibrante)
+    paintCtx.lineWidth = 14;
+    paintCtx.lineCap = 'round';
+    paintCtx.lineJoin = 'round';
+    paintCtx.strokeStyle = '#E65C23';
+
+    let prevX = null;
+    let prevY = null;
+
+    function extractFeaturesFromCanvas() {
+      const imgData = paintCtx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
+      const data = imgData.data;
+
+      let minX = paintCanvas.width, minY = paintCanvas.height, maxX = 0, maxY = 0;
+      let hasDrawing = false;
+
+      for (let y = 0; y < paintCanvas.height; y++) {
+        for (let x = 0; x < paintCanvas.width; x++) {
+          const idx = (y * paintCanvas.width + x) * 4;
+          if (data[idx + 3] > 50) {
+            hasDrawing = true;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+
+      if (!hasDrawing) return null;
+
+      const pad = 25;
+      minX = Math.max(0, minX - pad);
+      minY = Math.max(0, minY - pad);
+      const w = Math.min(paintCanvas.width - minX, (maxX - minX) + pad * 2);
+      const h = Math.min(paintCanvas.height - minY, (maxY - minY) + pad * 2);
+
+      const thumbCanvas = document.createElement('canvas');
+      thumbCanvas.width = 28;
+      thumbCanvas.height = 28;
+      const thumbCtx = thumbCanvas.getContext('2d');
+
+      thumbCtx.fillStyle = '#000000';
+      thumbCtx.fillRect(0, 0, 28, 28);
+      thumbCtx.drawImage(paintCanvas, minX, minY, w, h, 2, 2, 24, 24);
+
+      const thumbData = thumbCtx.getImageData(0, 0, 28, 28).data;
+      const features = [];
+      for (let i = 0; i < thumbData.length; i += 4) {
+        features.push((thumbData[i] + thumbData[i+1] + thumbData[i+2]) / (3 * 255));
+      }
+      return features;
+    }
+
+    function predictKNN(features, k = 5) {
+      if (dataset.length === 0) return null;
+
+      const distances = dataset.map(sample => {
+        let sum = 0;
+        for (let i = 0; i < features.length; i++) {
+          const diff = features[i] - sample.features[i];
+          sum += diff * diff;
+        }
+        return { label: sample.label, dist: Math.sqrt(sum) };
+      });
+
+      distances.sort((a, b) => a.dist - b.dist);
+      const neighbors = distances.slice(0, Math.min(k, distances.length));
+
+      const votes = {};
+      neighbors.forEach(n => { votes[n.label] = (votes[n.label] || 0) + 1; });
+
+      let bestClass = null;
+      let maxVotes = -1;
+      for (let c in votes) {
+        if (votes[c] > maxVotes) {
+          maxVotes = votes[c];
+          bestClass = c;
+        }
+      }
+      return bestClass;
+    }
+
+    // MediaPipe Hands
+    const hands = new Hands({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+    });
+
+    hands.setOptions({
+      maxNumHands: 1,
+      modelComplexity: 1,
+      minDetectionConfidence: 0.7,
+      minTrackingConfidence: 0.6
+    });
+
+    hands.onResults((results) => {
+      cursorCtx.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
+
+      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        const lm = results.multiHandLandmarks[0];
+        const indexTip = lm[8];
+        const indexJoint = lm[6];
+        const middleTip = lm[12];
+        const middleJoint = lm[10];
+
+        const x = indexTip.x * cursorCanvas.width;
+        const y = indexTip.y * cursorCanvas.height;
+
+        const isIndexUp = indexTip.y < indexJoint.y;
+        const isMiddleUp = middleTip.y < middleJoint.y;
+
+        if (isIndexUp && !isMiddleUp) {
+          modeTag.innerText = "Giz no ar: Escrevendo ✨";
+          cursorCtx.fillStyle = '#E65C23';
+          cursorCtx.beginPath();
+          cursorCtx.arc(x, y, 7, 0, 2 * Math.PI);
+          cursorCtx.fill();
+
+          if (prevX !== null && prevY !== null) {
+            paintCtx.beginPath();
+            paintCtx.moveTo(prevX, prevY);
+            paintCtx.lineTo(x, y);
+            paintCtx.stroke();
+          }
+          prevX = x;
+          prevY = y;
+        } else if (isIndexUp && isMiddleUp) {
+          modeTag.innerText = "Pausa: Mão levantada em repouso 🕊️";
+          cursorCtx.strokeStyle = '#6EA8D9';
+          cursorCtx.lineWidth = 3;
+          cursorCtx.beginPath();
+          cursorCtx.arc(x, y, 12, 0, 2 * Math.PI);
+          cursorCtx.stroke();
+
+          prevX = null;
+          prevY = null;
+        } else {
+          modeTag.innerText = "Aguardando seu gesto...";
+          prevX = null;
+          prevY = null;
+        }
+      } else {
+        modeTag.innerText = "Mostre a mão para a tela...";
+        prevX = null;
+        prevY = null;
+      }
+    });
+
+    const camera = new Camera(video, {
+      onFrame: async () => { await hands.send({ image: video }); },
+      width: 580,
+      height: 435
+    });
+
+    camera.start()
+      .then(() => { statusMsg.innerText = "Tudo pronto! Aproxime sua mão."; })
+      .catch(err => { statusMsg.innerText = "Erro ao abrir câmera: " + err.message; });
+
+    document.getElementById('btnPredict').addEventListener('click', predictWord);
+    function predictWord() {
+      const feat = extractFeaturesFromCanvas();
+      if (!feat) {
+        statusMsg.innerText = "Desenhe a palavra antes de consultar!";
+        return;
+      }
+
+      const prediction = predictKNN(feat, 5);
+      if (prediction && POEMAS[prediction]) {
+        document.getElementById('pPalavra').innerText = "Palavra: " + prediction;
+        document.getElementById('pAutor').innerText = "Versos de " + POEMAS[prediction].autor;
+        document.getElementById('pVerso').innerText = `"${POEMAS[prediction].verso}"`;
+        poemaPlaceholder.style.display = 'none';
+        poemaConteudo.style.display = 'block';
+        statusMsg.innerText = `Reconhecido: "${prediction.toUpperCase()}"!`;
+      }
+    }
+
+    document.getElementById('btnClear').addEventListener('click', clearCanvas);
+    function clearCanvas() {
+      paintCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+      poemaConteudo.style.display = 'none';
+      poemaPlaceholder.style.display = 'block';
+      statusMsg.innerText = "Quadro limpo para novos versos.";
+      prevX = null;
+      prevY = null;
+    }
+
+    // Salvar amostra para treino na pasta dataset
+    document.getElementById('btnSalvarNaPasta').addEventListener('click', async () => {
+      const imgData = paintCtx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
+      let minX = paintCanvas.width, minY = paintCanvas.height, maxX = 0, maxY = 0;
+      let hasDrawing = false;
+
+      for (let y = 0; y < paintCanvas.height; y++) {
+        for (let x = 0; x < paintCanvas.width; x++) {
+          const idx = (y * paintCanvas.width + x) * 4;
+          if (imgData.data[idx + 3] > 50) {
+            hasDrawing = true;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+
+      if (!hasDrawing) {
+        statusMsg.innerText = "Desenhe antes de guardar a amostra!";
+        return;
+      }
+
+      const cropCanvas = document.createElement('canvas');
+      cropCanvas.width = 64;
+      cropCanvas.height = 64;
+      const cropCtx = cropCanvas.getContext('2d');
+      cropCtx.fillStyle = '#000';
+      cropCtx.fillRect(0, 0, 64, 64);
+      cropCtx.drawImage(paintCanvas, minX, minY, (maxX - minX), (maxY - minY), 4, 4, 56, 56);
+
+      const base64Image = cropCanvas.toDataURL('image/png');
+      const label = document.getElementById('labelSelect').value;
+
+      statusMsg.innerText = `Guardando amostra de ${label}...`;
+
+      try {
+        const res = await fetch('/salvar_amostra', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ label: label, image: base64Image })
+        });
+        const resposta = await res.json();
+        if (resposta.status === 'sucesso') {
+          statusMsg.innerText = `Guardado em dataset/${label}/${resposta.arquivo}!`;
+          clearCanvas();
+        }
+      } catch (err) {
+        statusMsg.innerText = "Aviso: inicie o server.py para salvar na pasta!";
+      }
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 's' || e.key === 'S') predictWord();
+      if (e.key === 'c' || e.key === 'C') clearCanvas();
+    });
+  </script>
+</body>
+</html>
